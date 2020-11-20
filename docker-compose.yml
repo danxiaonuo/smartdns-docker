@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  smartdns:
+    tty: true
+    restart: always
+    image: danxiaonuo/smartdns:latest
+    container_name: smartdns
+    hostname: smartdns
+    cap_add:
+     - ALL
+    sysctls:
+     - net.ipv4.tcp_ecn=1
+     - net.ipv4.tcp_ecn_fallback=1
+     - net.ipv4.tcp_congestion_control=bbrplus
+    volumes:
+      # smartdns配置目录
+      - ./conf/smartdns/smartdns.conf:/etc/smartdns/smartdns.conf:rw,cached
+      # 同步宿主机时区与时间
+      - /usr/share/zoneinfo:/usr/share/zoneinfo:ro,cached
+      - /etc/localtime:/etc/localtime:ro,cached
+    networks:
+      - app_net
+    #expose:
+    #- "6053/tcp"
+    #- "6053/udp"
+    #- "6553/tcp"
+    #- "6553/udp"
+    ports:
+    - "6053:6053/tcp"
+    - "6053:6053/udp"
+    - "6553:6553/tcp"
+    - "6553:6553/udp"
+    ulimits:
+      nproc: 65535
+      nofile:
+          soft: 65535
+          hard: 65535
+
+networks:
+  app_net:
+    enable_ipv6: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.186.0.0/24
+        gateway: 172.186.0.1
+      - subnet: 8888:9999:8888::/64
+        gateway: 8888:9999:8888::1
