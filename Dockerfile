@@ -23,16 +23,20 @@ ARG DOCKER_IMAGE_TAG=latest
 ENV DOCKER_IMAGE_TAG=$DOCKER_IMAGE_TAG
 
 ARG PKG_DEPS="\
-    zsh \
-    iproute2 \
-    bind-tools \
-    git \
-    vim \
-    tzdata \
-    curl \
-    wegt \
-    ca-certificates"
-ENV PKG_DEPS=$PKG_DEPS	
+      zsh \
+      bash \
+      bind-tools \
+      iproute2 \
+      git \
+      vim \
+      tzdata \
+      curl \
+      wget \
+      lsof \
+      zip \
+      unzip \
+      ca-certificates"
+ENV PKG_DEPS=$PKG_DEPS
 
 # dumb-init
 # https://github.com/Yelp/dumb-init
