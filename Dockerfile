@@ -5,6 +5,15 @@
 # 指定创建的基础镜像
 FROM alpine:latest
 
+# 作者描述信息
+MAINTAINER danxiaonuo
+# 时区设置
+ARG TZ=Asia/Shanghai
+ENV TZ=$TZ
+# 语言设置
+ARG LANG=C.UTF-8
+ENV LANG=$LANG
+
 # 镜像变量
 ARG DOCKER_IMAGE=danxiaonuo/smartdns
 ENV DOCKER_IMAGE=$DOCKER_IMAGE
@@ -12,24 +21,22 @@ ARG DOCKER_IMAGE_OS=alpine
 ENV DOCKER_IMAGE_OS=$DOCKER_IMAGE_OS
 ARG DOCKER_IMAGE_TAG=latest
 ENV DOCKER_IMAGE_TAG=$DOCKER_IMAGE_TAG
-ARG BUILD_DATE
-ENV BUILD_DATE=$BUILD_DATE
-
-
-# 作者描述信息
-MAINTAINER danxiaonuo
-# 时区设置
-ARG TZ=Asia/Shanghai
-ENV TZ=$TZ
 
 ARG PKG_DEPS="\
-      tzdata \
-      ca-certificates"
-ENV PKG_DEPS=$PKG_DEPS
+    zsh \
+    iproute2 \
+    bind-tools \
+    git \
+    vim \
+    tzdata \
+    curl \
+    wegt \
+    ca-certificates"
+ENV PKG_DEPS=$PKG_DEPS	
 
 # dumb-init
 # https://github.com/Yelp/dumb-init
-ARG DUMBINIT_VERSION=1.2.2
+ARG DUMBINIT_VERSION=1.2.5
 ENV DUMBINIT_VERSION=$DUMBINIT_VERSION
 
 # http://label-schema.org/rc1/
@@ -41,19 +48,24 @@ LABEL maintainer="danxiaonuo <danxiaonuo@danxiaonuo.me>" \
       versions.dumb-init=${DUMBINIT_VERSION}
 
 
-# 修改源地址
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 # ***** 安装依赖 *****
 RUN set -eux \
-   # 更新源地址
-   && apk update \
-   # 更新系统并更新系统软件
-   && apk upgrade && apk upgrade \
+   # 修改源地址
+   && sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+   # 更新源地址并更新系统软件
+   && apk update && apk upgrade \
+   # 安装依赖包
    && apk add -U --update $PKG_DEPS \
    # 更新时区
    && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
    # 更新时间
-   && echo ${TZ} > /etc/timezone
+   &&  echo ${TZ} > /etc/timezone \
+   # 更改为zsh
+   &&  sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || true \
+   &&  sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd \
+   &&  sed -i -e 's/mouse=/mouse-=/g' /usr/share/vim/vim*/defaults.vim \
+   &&  /bin/zsh
+
 
 # 安装smartdns
 RUN set -eux \
