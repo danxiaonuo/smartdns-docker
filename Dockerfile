@@ -43,15 +43,6 @@ ENV PKG_DEPS=$PKG_DEPS
 ARG DUMBINIT_VERSION=1.2.5
 ENV DUMBINIT_VERSION=$DUMBINIT_VERSION
 
-# http://label-schema.org/rc1/
-LABEL maintainer="danxiaonuo <danxiaonuo@danxiaonuo.me>" \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="$DOCKER_IMAGE" \
-      org.label-schema.schema-version="1.0" \
-      org.label-schema.url="https://github.com/$DOCKER_IMAGE" \
-      versions.dumb-init=${DUMBINIT_VERSION}
-
-
 # ***** 安装依赖 *****
 RUN set -eux \
    # 修改源地址
@@ -95,4 +86,4 @@ STOPSIGNAL SIGQUIT
 ENTRYPOINT ["dumb-init"]
 
 # 运行smartdns
-CMD ["/usr/bin/smartdns", "-f", "-c", "/etc/smartdns/smartdns.conf"]
+CMD ["smartdns", "-f", "-c", "/etc/smartdns/smartdns.conf"]
