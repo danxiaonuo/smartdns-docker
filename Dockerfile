@@ -60,7 +60,9 @@ RUN set -eux \
 RUN set -eux \
     && wget --no-check-certificate https://github.com/pymumu/smartdns/releases/latest/download/smartdns-x86_64 -O /usr/bin/smartdns \
     && chmod +x /usr/bin/smartdns \
-    && mkdir -pv /etc/smartdns
+    && mkdir -pv /etc/smartdns \
+    && curl -s -m 3 --retry-delay 3 --retry 3 -k -4 --header 'cache-control: no-cache' --url 'https://raw.githubusercontent.com/danxiaonuo/gwf/main/smartdns/smartdns_xiaonuo_domain.conf' > /etc/smartdns/smartdns_xiaonuo_domain.conf \
+    && curl -s -m 3 --retry-delay 3 --retry 3 -k -4 --header 'cache-control: no-cache' --url 'https://raw.githubusercontent.com/danxiaonuo/gwf/main/smartdns/smartdns_gfw_domain.conf' > /etc/smartdns/smartdns_gfw_domain.conf
 
 # 设置环境变量
 ENV PATH /usr/bin/smartdns:$PATH
