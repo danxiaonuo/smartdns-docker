@@ -25,8 +25,11 @@ ENV DOCKER_IMAGE_TAG=$DOCKER_IMAGE_TAG
 ARG PKG_DEPS="\
       zsh \
       bash \
+      bash-doc \
+      bash-completion \
       bind-tools \
       iproute2 \
+      ipset \
       git \
       vim \
       tzdata \
@@ -39,22 +42,23 @@ ARG PKG_DEPS="\
 ENV PKG_DEPS=$PKG_DEPS
 
 # ***** 安装依赖 *****
-RUN set -eux \
+RUN set -eux && \
    # 修改源地址
-   && sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+   sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
    # 更新源地址并更新系统软件
-   && apk update && apk upgrade \
+   apk update && apk upgrade && \
    # 安装依赖包
-   && apk add -U --update $PKG_DEPS \
+   apk add --no-cache --clean-protected $PKG_DEPS && \
+   rm -rf /var/cache/apk/* && \
    # 更新时区
-   && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
+   ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime && \
    # 更新时间
-   &&  echo ${TZ} > /etc/timezone \
+   echo ${TZ} > /etc/timezone && \
    # 更改为zsh
-   &&  sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || true \
-   &&  sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd \
-   &&  sed -i -e 's/mouse=/mouse-=/g' /usr/share/vim/vim*/defaults.vim \
-   &&  /bin/zsh
+   sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || true && \
+   sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd && \
+   sed -i -e 's/mouse=/mouse-=/g' /usr/share/vim/vim*/defaults.vim && \
+   /bin/zsh
 
 # 安装smartdns
 RUN set -eux \
